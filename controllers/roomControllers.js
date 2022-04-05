@@ -4,26 +4,31 @@ import catchAsyncError from "../middlewares/catchAsyncError";
 import APIFeatures from "../utils/apiFeatures";
 
 //Get All Rooms => /api/rooms (GET REQUEST)
-export const getAllRooms = catchAsyncError(async (req,res,next) => {
-    try {
-       const apiFeatures = new APIFeatures(Room.find(), req.query )
+export const getAllRooms = catchAsyncError(async (req, res) => {
+
+    const resPerPage = 4;
+
+    const roomsCount = await Room.countDocuments();
+
+    const apiFeatures = new APIFeatures(Room.find(), req.query)
         .search()
         .filter()
-       const rooms = await apiFeatures.query;
-       if(!rooms) return next(new ErrorHandler('Room not found', 404));
-       res.status(200).json({
-           success: true,
-           count: rooms.length,
-           rooms
-       })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            error: error.message
-        })
-    }
-})
 
+    let rooms = await apiFeatures.query;
+    let filteredRoomsCount = rooms.length;
+
+    apiFeatures.pagination(resPerPage)
+    rooms = await apiFeatures.query.clone();
+
+    res.status(200).json({
+        success: true,
+        roomsCount,
+        resPerPage,
+        filteredRoomsCount,
+        rooms
+    })
+
+})
 //GET ROOM BY ID => /api/rooms/:id (GET REQUEST)
 
 export const getRoom = catchAsyncError(async (req,res,next) => {
