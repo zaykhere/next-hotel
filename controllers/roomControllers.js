@@ -1,10 +1,20 @@
 import Room from "../models/Room"
 
-export const getAllRooms = (req,res) => {
-    res.status(200).json({
-        success: true,
-        message: "all rooms"
-    })
+export const getAllRooms = async (req,res) => {
+    try {
+       const rooms = await Room.find();
+       if(!rooms) return res.status(404).json({error: "No room found"});
+       res.status(200).json({
+           success: true,
+           count: rooms.length,
+           rooms
+       })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: error.message
+        })
+    }
 }
 
 // Create New room => /api/rooms (POST REQUEST)
