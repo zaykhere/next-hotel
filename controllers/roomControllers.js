@@ -1,11 +1,15 @@
 import Room from "../models/Room";
 import ErrorHandler from "../utils/errorHandler";
 import catchAsyncError from "../middlewares/catchAsyncError";
+import APIFeatures from "../utils/apiFeatures";
 
 //Get All Rooms => /api/rooms (GET REQUEST)
 export const getAllRooms = catchAsyncError(async (req,res,next) => {
     try {
-       const rooms = await Room.find();
+       const apiFeatures = new APIFeatures(Room.find(), req.query )
+        .search()
+        .filter()
+       const rooms = await apiFeatures.query;
        if(!rooms) return next(new ErrorHandler('Room not found', 404));
        res.status(200).json({
            success: true,
