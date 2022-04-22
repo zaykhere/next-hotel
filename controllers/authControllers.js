@@ -51,3 +51,41 @@ export const currentUserProfile = catchAsyncError(async (req, res) => {
         user
     })
 })
+
+//Update User Profile => /api/me/update
+export const updateUserProfile = catchAsyncError(async (req, res) => {
+    const user = await User.findById(req.user);
+
+    if(user) {
+        user.name = req.body.name;
+        user.email = req.body.email;
+
+        if(req.body.password) user.password = req.body.password;
+
+    }
+
+    if(req.body.avatar && req.body.avatar !== '') {
+        const image_id = user.avatar.public_id;
+
+        //Delete previous user avatar
+        await v2.uploader.destroy(image_id);
+
+        const result = await v2.uploader.upload(req.body.avatar, {
+            folder: 'next-hotel/avatars',
+            width: '150',
+            crop: 'scale' 
+         });
+
+         user.avatar = {
+             public_id : result.public_id,
+             url: result.secure_url
+         }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        user
+    })
+})
