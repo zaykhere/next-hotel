@@ -3,6 +3,7 @@ import ErrorHandler from "../utils/errorHandler";
 import catchAsyncError from "../middlewares/catchAsyncError";
 import APIFeatures from "../utils/apiFeatures";
 import {v2} from "cloudinary"
+import { isAuthenticatedUser } from "../middlewares/auth";
 
 v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,7 +11,7 @@ v2.config({
     api_secret: process.env.CLOUDINARY_SECRET_KEY
 })
 
-//Get All User => /api/auth/register (POST REQUEST)
+//Register User => /api/auth/register (POST REQUEST)
 export const registerUser = catchAsyncError(async (req, res) => {
 
     const result = await v2.uploader.upload(req.body.avatar, {
@@ -37,4 +38,16 @@ export const registerUser = catchAsyncError(async (req, res) => {
         user
     })
 
+})
+
+//Current User Profile => /api/me 
+export const currentUserProfile = catchAsyncError(async (req, res) => {
+    const user = await User.findById(req.user);
+
+    if(!user) return res.status(404).json({error: "No user found"});
+
+    res.status(200).json({
+        success: true,
+        user
+    })
 })
