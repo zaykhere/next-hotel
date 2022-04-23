@@ -10,13 +10,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { checkBooking } from '../../redux/actions/bookingActions';
+import { CHECK_BOOKING_RESET } from '../../redux/constants/bookingConstants';
 
 const RoomDetails = () => {
   const [checkInDate, setCheckInDate] = useState();
   const [checkOutDate, setCheckOutDate] = useState();
   const [daysOfStay, setDaysOfStay] = useState();
 
+  const {user} = useSelector(state=> state.loadedUser);
   const {room, error} = useSelector(state=> state.roomDetails);
+  const {available, loading: bookingLoading} = useSelector(state=> state.checkBooking);
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -25,6 +30,8 @@ const RoomDetails = () => {
       toast.error(error);
       dispatch(clearErrors());
   }, [])
+
+  const {id} = router.query;
 
   function onDateChange(dates) {
     const [checkInDate, checkOutDate] = dates;
@@ -36,6 +43,8 @@ const RoomDetails = () => {
       const days = Math.floor(((new Date(checkOutDate) - new Date(checkInDate)) / 86400000 + 1))
       
       setDaysOfStay(days);
+
+      dispatch(checkBooking(id, checkInDate.toISOString(), checkOutDate.toISOString()))
     }
 
   }
@@ -112,13 +121,37 @@ const RoomDetails = () => {
                     className='w-100'
                     selected={checkInDate}
                     onChange={onDateChange}
+                    minDate={new Date()}
                     startDate={checkInDate}
                     endDate={checkOutDate}
                     selectsRange
                     inline
                     />
-                    <button className="btn btn-block py-3 booking-btn"
-                    onClick={newBookingHandler}>Pay</button>
+
+                    {available === true && (
+                      <div className='alert alert-success my-3 font-weight-bold'>
+                          Room is available. Book Now.
+                        </div>
+                    )}
+
+                    {available === false && (
+                      <div className='alert alert-danger my-3 font-weight-bold'>
+                          Room unavailable. Try different dates.
+                        </div>
+                    )}
+
+                    {available && !user && (
+                      <div className='alert alert-danger my-3 font-weight-bold'>
+                          Login To Book Room
+                        </div>
+                    )}
+
+                    {available && user && (
+                      <button className="btn btn-block py-3 booking-btn"
+                      onClick={newBookingHandler}>Pay</button>
+                    )}
+
+                    
 
                   </div>
               </div>

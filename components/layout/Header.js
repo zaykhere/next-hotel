@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react"
 
 const Header = () => {
   const dispatch = useDispatch();
-  const {user, loading} = useSelector(state=> state.auth);
+  const {user, loading} = useSelector(state=> state.loadedUser);
 
   useEffect(() => {
     dispatch(loadUser());
