@@ -2,6 +2,7 @@ import Booking from "../models/Booking";
 import catchAsyncError from "../middlewares/catchAsyncError";
 import ErrorHandler from "../utils/errorHandler";
 import User from "../models/User";
+import { getDatesBetweenDates } from "../utils/dateUtility";
 
 //Create Booking => /api/bookings (POST REQUEST)
 export const newBooking = catchAsyncError(async (req, res, next) => {
@@ -68,3 +69,26 @@ export const checkBookingAvailability = catchAsyncError(async (req, res, next) =
     isAvailable
   });
 });
+
+//Checked booked dates of room
+export const checkBookedDatesOfRoom = catchAsyncError(async(req,res)=> {
+  const {roomId} = req.query;
+
+  const bookings = await Booking.find({room: roomId});
+
+  let bookedDates = [];
+  let dates;
+
+  bookings.forEach(booking => {
+    dates = getDatesBetweenDates(booking.checkInDate, booking.checkOutDate);
+
+    bookedDates = bookedDates.concat(dates);
+  })
+
+  console.log(bookedDates);
+
+  res.status(200).json({
+    success: true,
+    bookedDates
+  })
+})
