@@ -1,21 +1,71 @@
 import Head from 'next/head';
-import React, {useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { clearErrors } from '../../redux/actions/roomActions';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import RoomFeatures from './roomFeatures';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 const RoomDetails = () => {
+  const [checkInDate, setCheckInDate] = useState();
+  const [checkOutDate, setCheckOutDate] = useState();
+  const [daysOfStay, setDaysOfStay] = useState();
+
   const {room, error} = useSelector(state=> state.roomDetails);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     if(error)
       toast.error(error);
       dispatch(clearErrors());
   }, [])
+
+  function onDateChange(dates) {
+    const [checkInDate, checkOutDate] = dates;
+    setCheckInDate(checkInDate);
+    setCheckOutDate(checkOutDate);
+
+    if(checkInDate && checkOutDate) {
+      // Calculate days of stay
+      const days = Math.floor(((new Date(checkOutDate) - new Date(checkInDate)) / 86400000 + 1))
+      
+      setDaysOfStay(days);
+    }
+
+  }
+
+  const newBookingHandler = async () => {
+    const bookingData = {
+      room: router.query.id,
+      checkInDate,
+      checkOutDate,
+      daysOfStay,
+      amountPaid: 90,
+      paymentInfo: {
+        id: 'stripe',
+        status: 'stripe_status'
+      }
+    }
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': "application/json"
+        }
+      }
+
+      const {data} = await axios.post('/api/bookings', bookingData, config);
+      console.log(data);
+    } catch (error) {
+      console.log(error.response);
+    }
+  }
   
     
   return (
@@ -56,7 +106,19 @@ const RoomDetails = () => {
                   <div className="booking-card shadow-lg p-4">
                     <p className='price-per-night'><b>${room.pricePerNight}</b> / night</p>
 
-                    <button className="btn btn-block py-3 booking-btn">Pay</button>
+                    <hr />
+                    <p className="mt-5 mb-3">Pick CheckIn and Checkout Date</p>
+                    <DatePicker
+                    className='w-100'
+                    selected={checkInDate}
+                    onChange={onDateChange}
+                    startDate={checkInDate}
+                    endDate={checkOutDate}
+                    selectsRange
+                    inline
+                    />
+                    <button className="btn btn-block py-3 booking-btn"
+                    onClick={newBookingHandler}>Pay</button>
 
                   </div>
               </div>
