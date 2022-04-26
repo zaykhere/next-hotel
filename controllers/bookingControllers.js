@@ -95,6 +95,15 @@ export const checkBookedDatesOfRoom = catchAsyncError(async(req,res)=> {
 //Get all bookings for single user => /api/bookings/me (GET REQUEST)
 export const myBookings = catchAsyncError(async(req,res)=> {
   const bookings = await Booking.find({user: req.user})
+  .populate({
+    path: 'room',
+    select: 'name pricePerNight images',
+    model: Room
+  })
+  .populate({
+    path: 'user',
+    select: 'name email'
+  })
 
   if(!bookings) return res.status(404).json({
     error: "You have not made any bookings yet"
