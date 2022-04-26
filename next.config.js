@@ -9,4 +9,7 @@ module.exports = {
     DB_URL:
       "mongodb+srv://zain:Iambest42@todoitemsback.soy2c.gcp.mongodb.net/next-hotel?retryWrites=true&w=majority",
   },
+  images: {
+    domains: ['res.cloudinary.com'],
+},
 };

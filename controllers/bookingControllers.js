@@ -2,6 +2,7 @@ import Booking from "../models/Booking";
 import catchAsyncError from "../middlewares/catchAsyncError";
 import ErrorHandler from "../utils/errorHandler";
 import User from "../models/User";
+import Room from "../models/Room";
 import { getDatesBetweenDates } from "../utils/dateUtility";
 
 //Create Booking => /api/bookings (POST REQUEST)
@@ -96,11 +97,34 @@ export const myBookings = catchAsyncError(async(req,res)=> {
   const bookings = await Booking.find({user: req.user})
 
   if(!bookings) return res.status(404).json({
-    message: "You have not made any bookings yet"
+    error: "You have not made any bookings yet"
   })
 
   res.status(200).json({
     success: true,
     bookings
+  })
+})
+
+//Get booking details => /api/bookings/:id (GET REQUEST)
+export const getBookingDetails = catchAsyncError(async(req,res)=> {
+  const booking = await Booking.findById(req.query.id)
+    .populate({
+      path: 'room',
+      select: 'name pricePerNight images',
+      model: Room
+    })
+    .populate({
+      path: 'user',
+      select: 'name email'
+    })
+
+  if(!booking) return res.status(404).json({
+    error: "Booking not found with that id"
+  })
+
+  res.status(200).json({
+    success: true,
+    booking
   })
 })

@@ -7,7 +7,9 @@ import {
   BOOKED_DATES_SUCCESS,
   BOOKED_DATES_FAIL,
   MY_BOOKINGS_FAIL,
-  MY_BOOKINGS_SUCCESS
+  MY_BOOKINGS_SUCCESS,
+  BOOKING_DETAILS_FAIL,
+  BOOKING_DETAILS_SUCCESS
 } from "../constants/bookingConstants";
 
 //Check bookings
@@ -83,6 +85,32 @@ export const bookingsReducer = (state = { bookings: [] }, action) => {
       };
 
     case MY_BOOKINGS_FAIL:
+      return {
+        loading: false,
+        error: action.payload,
+      };
+
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+//Get single booking details
+export const bookingDetailsReducer = (state = { booking: [] }, action) => {
+  switch (action.type) {
+    case BOOKING_DETAILS_SUCCESS:
+      return {
+        loading: false,
+        booking: action.payload,
+      };
+
+    case BOOKING_DETAILS_FAIL:
       return {
         loading: false,
         error: action.payload,
