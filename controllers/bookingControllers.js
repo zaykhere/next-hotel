@@ -85,10 +85,22 @@ export const checkBookedDatesOfRoom = catchAsyncError(async(req,res)=> {
     bookedDates = bookedDates.concat(dates);
   })
 
-  console.log(bookedDates);
-
   res.status(200).json({
     success: true,
     bookedDates
+  })
+})
+
+//Get all bookings for single user => /api/bookings/me (GET REQUEST)
+export const myBookings = catchAsyncError(async(req,res)=> {
+  const bookings = await Booking.find({user: req.user})
+
+  if(!bookings) return res.status(404).json({
+    message: "You have not made any bookings yet"
+  })
+
+  res.status(200).json({
+    success: true,
+    bookings
   })
 })
