@@ -10,7 +10,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { checkBooking } from '../../redux/actions/bookingActions';
+import { checkBooking, getBookedDates } from '../../redux/actions/bookingActions';
 import { CHECK_BOOKING_RESET } from '../../redux/constants/bookingConstants';
 
 const RoomDetails = () => {
@@ -21,17 +21,25 @@ const RoomDetails = () => {
   const {user} = useSelector(state=> state.loadedUser);
   const {room, error} = useSelector(state=> state.roomDetails);
   const {available, loading: bookingLoading} = useSelector(state=> state.checkBooking);
+  const {dates} = useSelector(state=> state.bookedDates);
+
+  const excludedDates = [];
+  dates.forEach(date => {
+    excludedDates.push(new Date(date));
+  })
 
   const dispatch = useDispatch();
   const router = useRouter();
 
-  useEffect(() => {
-    if(error)
-      toast.error(error);
-      dispatch(clearErrors());
-  }, [])
-
   const {id} = router.query;
+
+  useEffect(() => {
+    dispatch(getBookedDates(id))
+    toast.error(error);
+    //  dispatch(clearErrors());
+  }, [dispatch,id])
+
+  
 
   function onDateChange(dates) {
     const [checkInDate, checkOutDate] = dates;
@@ -124,6 +132,7 @@ const RoomDetails = () => {
                     minDate={new Date()}
                     startDate={checkInDate}
                     endDate={checkOutDate}
+                    excludeDates={excludedDates}
                     selectsRange
                     inline
                     />

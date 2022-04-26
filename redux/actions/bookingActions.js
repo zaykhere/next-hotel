@@ -4,10 +4,12 @@ import {
   CHECK_BOOKING_FAIL,
   CHECK_BOOKING_RESET,
   CLEAR_ERRORS,
+  BOOKED_DATES_SUCCESS,
+  BOOKED_DATES_FAIL,
 } from "../constants/bookingConstants";
 import axios from "axios";
 
-//Register user
+//Check booked dates
 export const checkBooking =
   (roomId, checkInDate, checkOutDate) => async (dispatch) => {
     try {
@@ -24,6 +26,20 @@ export const checkBooking =
       });
     }
   };
+
+export const getBookedDates =
+(roomId) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/api/bookings/check_booked_dates?roomId=${roomId}`);
+    dispatch({ type: BOOKED_DATES_SUCCESS, payload: data.bookedDates });
+  } catch (error) {
+    console.log(error);
+    dispatch({
+      type: BOOKED_DATES_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
 
 //Clear errors
 export const clearErrors = () => async (dispatch) => {
