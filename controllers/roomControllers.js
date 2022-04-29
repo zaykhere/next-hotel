@@ -1,4 +1,5 @@
 import Room from "../models/Room";
+import User from "../models/User";
 import ErrorHandler from "../utils/errorHandler";
 import catchAsyncError from "../middlewares/catchAsyncError";
 import APIFeatures from "../utils/apiFeatures";
@@ -71,5 +72,51 @@ export const newRoom = catchAsyncError(async (req,res) => {
         res.status(200).json({
         success: true,
         room
+    })
+})
+
+// Create Room Review => /api/reviews (PUT REQUEST)
+
+export const createRoomReview = catchAsyncError(async (req,res,next) => {
+    const {rating, comment, roomId} = req.body;
+
+    const user = await User.findById(req.user);
+    if(!user) return next(new ErrorHandler("User not found", 404));
+
+    const review = {
+        user: req.user,
+        name: user.name,
+        rating: Number(rating),
+        comment
+    };
+
+    const room = await Room.findById(roomId);
+
+    if(!room) return next(new ErrorHandler("Room not found", 404));
+
+    const isReviewed = room.reviews.find(r=> {
+        r.user.toString() === req.user.toString()
+    })
+
+    if(isReviewed) {
+        room.reviews.forEach(review=> {
+            if(review.user.toString() === req.user.toString()) {
+                review.comment = comment;
+                review.rating = rating;
+            }
+        })
+    }
+
+    else {
+        room.reviews.push(review);
+        room.numOfReviews = room.reviews.length;
+    }
+
+    room.ratings = room.reviews.reduce((acc,item)=> item.rating + acc , 0 ) / room.reviews.length;
+
+    await room.save({validateBeforeSave: false});
+
+    res.status(200).json({
+        success: true
     })
 })
