@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { clearErrors } from "../../redux/actions/roomActions";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
-import RoomFeatures from "./roomFeatures";
+import RoomFeatures from "./RoomFeatures";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useRouter } from "next/router";
