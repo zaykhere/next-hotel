@@ -38,7 +38,7 @@ const Search = () => {
           </div>
 
           <div className="form-group">
-            <label for="guest_field">No. of Guests</label>
+            <label htmlFor="guest_field">No. of Guests</label>
             <select className="form-control" 
             id="guest_field" 
             value={guests}
@@ -51,7 +51,7 @@ const Search = () => {
           </div>
 
           <div className="form-group">
-            <label for="room_type_field">Room Type</label>
+            <label htmlFor="room_type_field">Room Type</label>
             <select className="form-control" 
             id="room_type_field" 
             value={category}
