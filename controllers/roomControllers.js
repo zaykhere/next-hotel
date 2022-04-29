@@ -1,5 +1,6 @@
 import Room from "../models/Room";
 import User from "../models/User";
+import Booking from '../models/Booking';
 import ErrorHandler from "../utils/errorHandler";
 import catchAsyncError from "../middlewares/catchAsyncError";
 import APIFeatures from "../utils/apiFeatures";
@@ -118,5 +119,20 @@ export const createRoomReview = catchAsyncError(async (req,res,next) => {
 
     res.status(200).json({
         success: true
+    })
+})
+
+// Check review availability => /api/reviews/check_review_availability (GET REQUEST)
+
+export const checkReviewAvailability = catchAsyncError(async (req,res,next) => {
+    const {roomId} = req.query;
+    const bookings = await Booking.find({user: req.user, room: roomId});
+
+    let isReviewAvailable = false;
+    if(bookings.length > 0) isReviewAvailable = true;
+
+    res.status(200).json({
+        success: true,
+        isReviewAvailable
     })
 })
